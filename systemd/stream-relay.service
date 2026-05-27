@@ -1,0 +1,42 @@
+[Unit]
+Description=RTMP Stream Relay - Raspberry Pi 4 Network Input to RTMP Output
+Documentation=https://github.com/shian-chi/rasp-rtmp-server
+After=network-online.target nginx.service
+Wants=network-online.target
+Requires=nginx.service
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+
+# 工作目錄（由 setup.sh 替換 PROJECT_DIR）
+WorkingDirectory=PROJECT_DIR
+
+# 載入設定檔
+EnvironmentFile=PROJECT_DIR/config/config.env
+
+# 主執行命令
+ExecStart=/bin/bash PROJECT_DIR/scripts/stream_relay.sh
+
+# 重啟設定
+Restart=always
+RestartSec=5s
+StartLimitInterval=300
+StartLimitBurst=10
+
+# 逾時設定
+TimeoutStartSec=60
+TimeoutStopSec=30
+
+# 資源限制
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# 日誌設定
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=stream-relay
+
+[Install]
+WantedBy=multi-user.target
