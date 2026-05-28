@@ -374,17 +374,63 @@ nano config/config.env
 # 修改 NETWORK_INTERFACE=enp2s0
 ```
 
-### 問題：RTSP 連線被拒絕
+### 問題：RTSP 連線被拒絕（Connection refused）
 
 ```bash
-# 測試 RTSP 連通性
-ffprobe -v quiet -show_streams rtsp://192.168.1.100:554/stream
+# 步驟 1：確認攝影機可以 ping 到
+ping -c 3 192.168.8.12
 
-# 確認 RTSP 傳輸協定
-RTSP_TRANSPORT=tcp  # TCP 較穩定
-# 或
-RTSP_TRANSPORT=udp  # UDP 延遲較低
+# 步驟 2：掃描攝影機開放的埠（554 或 8554）
+for port in 554 8554 80 8080; do
+  timeout 2 bash -c ">/dev/tcp/192.168.8.12/$port" 2>/dev/null \
+    && echo "埠 $port 開放" || echo "埠 $port 關閉"
+done
+
+# 步驟 3：自動掃描所有可能的 RTSP 路徑
+./scripts/diagnose.sh --rtsp
 ```
+
+#### SangLuWoo V3-365C-AR 常見 RTSP 路徑
+
+```bash
+# HiSilicon 主碼流（最常見，已確認相容）
+rtsp://admin:123456@192.168.8.12:554/h264/ch1/main/av_stream
+
+# 若主路徑不通，嘗試替代路徑：
+rtsp://admin:123456@192.168.8.12:554/h264/ch1/sub/av_stream   # 子碼流
+rtsp://admin:123456@192.168.8.12:8554/h264/ch1/main/av_stream # 替代埠 8554
+rtsp://admin:123456@192.168.8.12:554/stream1
+rtsp://admin:123456@192.168.8.12:554/live/ch0
+```
+
+#### 確認 RTSP 路徑
+
+```bash
+# 使用 ffprobe 逐一測試，有輸出即為可用
+ffprobe -v quiet -rtsp_transport tcp \
+  -show_entries stream=codec_name,width,height \
+  rtsp://admin:123456@192.168.8.12:554/h264/ch1/main/av_stream
+```
+
+### 問題：Mac 無法播放 HLS 串流（VLC / ffplay）
+
+nginx-rtmp 1.1.4 與較新版 FFmpeg（7+）的 RTMP 相容性有問題，
+建議改用 **HLS** 方式在 Mac 上觀看：
+
+```bash
+# 在樹莓派上確認防火牆已開放 8080
+sudo ufw status | grep 8080
+# 若未開放：
+sudo ufw allow 8080/tcp
+
+# Mac 上用 ffplay 播放 HLS
+ffplay http://192.168.8.11:8080/hls/oBYS2OomLmSXZ6QUbqRq__dock.m3u8
+
+# 或 VLC > 媒體 > 開啟網路串流，輸入：
+# http://192.168.8.11:8080/hls/oBYS2OomLmSXZ6QUbqRq__dock.m3u8
+```
+
+> 樹莓派 IP 為 192.168.8.11（eth0），串流金鑰為 `STREAM_KEY`（config.env）。
 
 ---
 
