@@ -240,6 +240,8 @@ build_ffmpeg_cmd() {
     case "$input_proto" in
         rtsp)
             # RTSP 輸入（IP 攝影機）
+            # use_wallclock_as_timestamps 修正 Non-monotonous DTS 問題
+            cmd+=" -use_wallclock_as_timestamps 1"
             cmd+=" -rtsp_transport $RTSP_TRANSPORT"
             cmd+=" -stimeout $((CONNECTION_TIMEOUT * 1000000))"
             cmd+=" -i \"$input_source\""
