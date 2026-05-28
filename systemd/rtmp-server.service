@@ -1,0 +1,21 @@
+[Unit]
+Description=nginx RTMP Streaming Server
+Documentation=https://github.com/shian-chi/rasp-rtmp-server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+PIDFile=/var/run/nginx.pid
+ExecStartPre=/usr/sbin/nginx -t
+ExecStart=/usr/sbin/nginx
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+TimeoutStopSec=5
+KillMode=mixed
+PrivateTmp=true
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
