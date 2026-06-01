@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 樹莓派4 RTMP 推流伺服器
 
 使用樹莓派 4 (Raspberry Pi 4) 從網路孔（乙太網路）接收影像資料，並透過 RTMP 協定進行推流。
@@ -104,3 +105,6 @@ vlc rtmp://樹莓派IP/live/stream
 ## 授權
 
 MIT License
+=======
+# rtsp-RTMP-Server
+>>>>>>> 1f54457fb7b883d07ae5f0386bb5fc87462c7e24
