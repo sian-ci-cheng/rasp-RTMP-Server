@@ -100,10 +100,3 @@ vlc rtmp://樹莓派IP/live/stream
 ## 詳細文件
 
 請參閱 [安裝設定指南](docs/setup-guide.md)
-
-## 授權
-
-MIT License
-=======
-# rtsp-RTMP-Server
->>>>>>> 1f54457fb7b883d07ae5f0386bb5fc87462c7e24
